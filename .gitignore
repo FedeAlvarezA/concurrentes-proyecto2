@@ -10,3 +10,5 @@ Cargo.lock
 **/*.rs.bk
 .vscode
 src/pending_transactions.txt
+transactions.csv
+log
