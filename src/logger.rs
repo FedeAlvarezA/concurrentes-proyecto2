@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::Write;
-use std::sync::{Mutex};
+use std::sync::Mutex;
 use log;
 
 pub struct Logger {
