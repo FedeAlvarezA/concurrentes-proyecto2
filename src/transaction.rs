@@ -7,7 +7,7 @@ pub struct Transaction {
     timestamp: u32,
     operation_type: CashOperationType,
     amount_of_cash: f64,
-    authentication_hash: String,
+    authentication_hash: u64,
 }
 
 impl Transaction {
@@ -24,11 +24,15 @@ impl Transaction {
             timestamp,
             operation_type,
             amount_of_cash,
-            authentication_hash: "".to_string(),
+            authentication_hash: 0,
         }
     }
 
     pub fn get_transaction_type(&self) -> &CashOperationType {
         &self.operation_type
+    }
+
+    pub fn set_authentication_hash(&mut self, hash: u64) {
+        self.authentication_hash = hash;
     }
 }
