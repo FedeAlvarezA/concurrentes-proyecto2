@@ -32,6 +32,14 @@ impl Transaction {
         &self.operation_type
     }
 
+    pub fn get_user_id(&self) -> &String {
+        &self.user_id
+    }
+
+    pub fn get_transaction_amount(&self) -> f64 {
+        self.amount_of_cash
+    }
+
     pub fn set_authentication_hash(&mut self, hash: u64) {
         self.authentication_hash = hash;
     }
