@@ -1,23 +1,37 @@
-use std::sync::Arc;
+use crate::cash_operation_type::CashOperationType;
 use crate::logger::Logger;
-use crate::worker_types::CashWorkerTypes;
+use crate::transaction::Transaction;
+use std::sync::mpsc::{Receiver, RecvError};
+use std::sync::Arc;
 
 pub struct CashWorker {
-    id: u8,
     logger: Arc<Logger>,
-    worker_type: CashWorkerTypes
+    worker_type: CashOperationType,
+    rx: Receiver<Transaction>,
 }
 
 impl CashWorker {
-    pub fn new(id: u8, logger: Arc<Logger>, worker_type: CashWorkerTypes) -> CashWorker {
+    pub fn new(
+        logger: Arc<Logger>,
+        worker_type: CashOperationType,
+        rx: Receiver<Transaction>,
+    ) -> CashWorker {
         CashWorker {
-            id,
             logger,
-            worker_type
+            worker_type,
+            rx,
         }
     }
 
     pub fn start(&mut self) {
-
+        loop {
+            let transaction_status = self.rx.recv();
+            match transaction_status {
+                Err(RecvError) => break,
+                _ => {}
+            };
+            let transaction = transaction_status.unwrap();
+            println!("La transaccion: {:?}", transaction);
+        }
     }
 }
