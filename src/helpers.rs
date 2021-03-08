@@ -56,25 +56,27 @@ pub fn parse_args() -> (u8, u8, u8, u8, bool) {
 }
 
 pub fn run_cash_worker(
+    id: u8,
     logger: Arc<Logger>,
     worker_type: CashOperationType,
     rx: Receiver<Transaction>,
     hash_generator: Arc<Provider>,
     final_worker_tx: SyncSender<Transaction>,
 ) -> thread::JoinHandle<()> {
-    let worker = CashWorker::new(logger, worker_type, rx, hash_generator, final_worker_tx);
+    let worker = CashWorker::new(id, logger, worker_type, rx, hash_generator, final_worker_tx);
     thread::spawn(move || {
         worker.start();
     })
 }
 
 pub fn run_processing_workers(
+    id: u8, 
     cashin_txs: Vec<SyncSender<Transaction>>,
     cashout_txs: Vec<SyncSender<Transaction>>,
     transactions: Arc<Mutex<Vec<Transaction>>>,
     logger: Arc<Logger>,
 ) -> thread::JoinHandle<()> {
-    let mut worker = ProcessingWorker::new(transactions, cashin_txs, cashout_txs, logger);
+    let mut worker = ProcessingWorker::new(id, transactions, cashin_txs, cashout_txs, logger);
     thread::spawn(move || {
         worker.start();
     })
@@ -94,6 +96,7 @@ pub fn get_cash_workers(
         let (tx, rx) = sync_channel::<Transaction>(1);
         cash_txs.push(tx);
         cash_workers.push(run_cash_worker(
+            _i,
             Arc::clone(&logger),
             cash_op_type,
             rx,
@@ -116,6 +119,7 @@ pub fn get_ia_workers(
         let cashin_txs_temp = cash_in_txs.iter().map(|x| x.clone()).collect();
         let cashout_txs_temp = cash_out_txs.iter().map(|x| x.clone()).collect();
         ia_workers.push(run_processing_workers(
+            _i,
             cashin_txs_temp,
             cashout_txs_temp,
             Arc::clone(&transactions_protect),

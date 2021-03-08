@@ -28,16 +28,16 @@ impl FinalWorker {
             let mut transaction_amount = transaction.get_transaction_amount();
             let user_id = transaction.get_user_id();
             let user = self.users.get_mut(user_id).unwrap();
-
+            self.logger.log(format!("Final worker:\treceived {:?}", transaction));
             match transaction.get_transaction_type() {
                 CashOperationType::CashOut => {transaction_amount *= -1.0},
                 _ => {}
             }
             user.update_balance(transaction_amount);
         };
-
+        self.logger.log(format!("Final balances"));
         for (_id, user) in self.users.iter() {
-            println!("User {:?}", user);
+            self.logger.log(format!("{:?}", user));
         }
     }
 }

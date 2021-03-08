@@ -5,6 +5,7 @@ use std::sync::mpsc::{Receiver, RecvError, SyncSender};
 use std::sync::Arc;
 
 pub struct CashWorker {
+    id: u8,
     logger: Arc<Logger>,
     worker_type: CashOperationType,
     rx: Receiver<Transaction>,
@@ -14,6 +15,7 @@ pub struct CashWorker {
 
 impl CashWorker {
     pub fn new(
+        id: u8,
         logger: Arc<Logger>,
         worker_type: CashOperationType,
         rx: Receiver<Transaction>,
@@ -21,6 +23,7 @@ impl CashWorker {
         final_worker_tx: SyncSender<Transaction>,
     ) -> CashWorker {
         CashWorker {
+            id,
             logger,
             worker_type,
             rx,
@@ -37,10 +40,12 @@ impl CashWorker {
                 _ => {}
             };
             let mut transaction = transaction_status.unwrap();
+            self.logger.log(format!("{:?} worker {}:\treceived {:?}", self.worker_type, self.id, transaction));
+            self.logger.log(format!("{:?} worker {}:\trequesting authorization hash for {:?}", self.worker_type, self.id, transaction));
             let hash = self.hash_generator.get_hash();
             transaction.set_authentication_hash(hash);
-            println!("La transaccion: {:?}", transaction);
-
+            self.logger.log(format!("{:?} worker {}:\treceived authorization hash {} for {:?}", self.worker_type, self.id, hash, transaction));
+            self.logger.log(format!("{:?} worker {}:\tsending {:?} to final worker", self.worker_type, self.id, transaction));
             self.final_worker_tx.send(transaction).unwrap();
         }
     }
