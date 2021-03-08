@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use rand::Rng;
 use rand::seq::SliceRandom;
 
-const AMOUNT_OF_TRANSACTIONS: u32 = 8;
+const AMOUNT_OF_TRANSACTIONS: u32 = 100;
 const MAX_MONEY_TRANSFER: u32 = 10000;
 
 pub fn generate_data(filename: &str, user_ids: &Vec<String>) -> () {
