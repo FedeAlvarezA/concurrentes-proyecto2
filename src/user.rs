@@ -1,17 +1,18 @@
+#[derive(Debug)]
 pub struct User {
     id: String,
     balance: f64
 }
 
 impl User {
-    pub fn new(id: String) {
+    pub fn new(id: String) -> User {
         User {
             id,
-            0
+            balance: 0.0
         }
     }
 
-    pub fn get_balance(&mut self){
+    pub fn get_balance(&self) -> f64{
         self.balance
     }
 
