@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex, mpsc}, thread, time};
+use std::{sync::{Arc, Mutex}, thread, time};
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 
@@ -10,21 +10,19 @@ use crate::logger::Logger;
 pub struct Provider {
     current_hash: Mutex<u64>,
     logger: Arc<Logger>,
-    channel: mpsc::Sender<String>,
     finish: Mutex<bool>
 }
 
 impl Provider {
-    pub fn new(logger: Arc<Logger>, channel: mpsc::Sender<String>) -> Provider{
+    pub fn new(logger: Arc<Logger>) -> Provider{
         Provider{
             current_hash: Mutex::new(Provider::generate_hash()),
             logger,
-            channel,
             finish: Mutex::new(false),
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&self) {
         while !*self.finish.lock().unwrap() {
             thread::sleep(time::Duration::from_millis(1000));
             let mut value = self.current_hash.lock().unwrap();
@@ -32,12 +30,12 @@ impl Provider {
         }
     }
 
-    pub fn stop(&mut self) {
+    pub fn stop(&self) {
         let mut finish = self.finish.lock().unwrap();
         *finish = true;
     }
 
-    pub fn get_hash(&mut self) -> u64 {
+    pub fn get_hash(&self) -> u64 {
         let mut value = self.current_hash.lock().unwrap();
         let aux_value = *value;
         *value = Provider::generate_hash();
