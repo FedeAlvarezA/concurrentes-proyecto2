@@ -1,39 +1,43 @@
-use std::sync::mpsc;
-use logger::Logger;
-use user::User;
+use std::{collections::HashMap, sync::{Arc, mpsc::Receiver}};
+use crate::{cash_operation_type::CashOperationType, logger::Logger, transaction::Transaction};
+use crate::user::User;
 
 pub struct FinalWorker {
-    users: Vec<User>,
+    users: HashMap<String, User>,
     logger: Arc<Logger>,
-    channel: mpsc::Receiver<Transaction>
+    rx: Receiver<Transaction>
 }
 
 impl FinalWorker {
-    pub fn new(user_ids: Vec<String>, logger: Arc<Logger>) {
-        let mut users: Vec<User> = Vec::new()
-        for id in user_ids {
-            users.push(User::new(id))
-        }
+    pub fn new(users: HashMap<String, User>, logger: Arc<Logger>, rx: Receiver<Transaction>) -> FinalWorker {
         FinalWorker {
             users,
-            logger
+            logger,
+            rx
         }
     }
 
     pub fn start(&mut self) {
-        for transaction in self.channel {
-            let iter = self.channel.iter();
-            let user = iter.find(|usr| usr.id == transaction.user_id);
-            if transaction.operation_type == CashOperationType::CashIn {
-                user.update_balance(transaction.amount)
-            }
-            else {
-                user.update_balance(-1 * transaction.amount)
-            }
-        }
+        loop {
+            let transaction_status = self.rx.recv();
+            match transaction_status {
+                Err(_) => break,
+                _ => {}
+            };
+            let transaction = transaction_status.unwrap();
+            let mut transaction_amount = transaction.get_transaction_amount();
+            let user_id = transaction.get_user_id();
+            let user = self.users.get_mut(user_id).unwrap();
 
-        for user in self.users {
-            println!("User {}:\t{}", user.id, user.balance)
+            match transaction.get_transaction_type() {
+                CashOperationType::CashOut => {transaction_amount *= -1.0},
+                _ => {}
+            }
+            user.update_balance(transaction_amount);
+        };
+
+        for (_id, user) in self.users.iter() {
+            println!("User {:?}", user);
         }
     }
 }
