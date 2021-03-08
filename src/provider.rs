@@ -6,7 +6,6 @@ use rand::{Rng, thread_rng};
 
 use crate::logger::Logger;
 
-
 pub struct Provider {
     current_hash: Mutex<u64>,
     logger: Arc<Logger>,
