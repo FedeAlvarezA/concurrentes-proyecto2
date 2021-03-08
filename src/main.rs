@@ -23,6 +23,7 @@ const FILE_PATH: &str = "src/transactions.csv";
 const TRANSACTION_BUFFER_SIZE: usize = 256;
 
 fn main() {
+    env_logger::init();
     let (ia_workers_amount, cashin_workers_amount, cashout_workers_amount, clients_amount, debug) =
         parse_args();
 

@@ -38,6 +38,7 @@ impl Provider {
         let mut value = self.current_hash.lock().unwrap();
         let aux_value = *value;
         *value = Provider::generate_hash();
+        self.logger.log(format!("Hash Provider:\tReturned hash {}", aux_value));
         aux_value
     }
 
@@ -51,5 +52,34 @@ impl Provider {
         let mut s = DefaultHasher::new();
         t.hash(&mut s);
         s.finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::provider::Provider;
+
+    fn initialize_provider() -> Provider {
+        let logger = Arc::new(Logger::init_logger("log", false));
+        Provider::new(Arc::clone(&logger))
+    }
+
+    #[test]
+    fn get_hash_returns_value() {
+        let provider = initialize_provider();
+        let result = provider.get_hash();
+
+        assert!(result != 0)
+    }
+
+    #[test]
+    fn get_hash_changes_hash_value() {
+        let provider = initialize_provider();
+        let result = provider.get_hash();
+
+        let current_hash = provider.current_hash.lock().unwrap();
+
+        assert!(result != *current_hash)
     }
 }
