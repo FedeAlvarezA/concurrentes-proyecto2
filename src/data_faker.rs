@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use rand::Rng;
 use rand::seq::SliceRandom;
 
-const AMOUNT_OF_TRANSACTIONS: u32 = 50;
+const AMOUNT_OF_TRANSACTIONS: u32 = 8;
 const MAX_MONEY_TRANSFER: u32 = 10000;
 
 pub fn generate_data(filename: &str, user_ids: &Vec<String>) -> () {
@@ -11,7 +11,7 @@ pub fn generate_data(filename: &str, user_ids: &Vec<String>) -> () {
   let since_the_epoch = start
       .duration_since(UNIX_EPOCH)
       .expect("Time went backwards");
-  let mut curr_timestamp = since_the_epoch.as_secs() as f64;
+  let mut curr_timestamp = since_the_epoch.as_secs() as u32;
   let cash_options = vec!["cash_in", "cash_out"];
   let mut rng = rand::thread_rng();
 
@@ -26,7 +26,7 @@ pub fn generate_data(filename: &str, user_ids: &Vec<String>) -> () {
       random_cash_option.to_string(), random_cash_amount.to_string()
     ]).unwrap();
 
-    curr_timestamp += rng.gen::<f64>() * (30000 as f64);
+    curr_timestamp += (rng.gen::<f64>() * 30000 as f64) as u32;
   }
   wtr.flush().unwrap();
 }
